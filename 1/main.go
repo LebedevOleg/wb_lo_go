@@ -1,28 +1,32 @@
 package main
 
 import (
-	"net/http"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
+var cache OrdersCache
+
 func main() {
-	route := gin.Default()
-
-	route.GET("/", func(context *gin.Context) {
-		getTestJson(context)
-	})
-	route.GET("/orders", GetAllOrders)
-	route.POST("/addorder", CreateOrder)
-
+	app := fiber.New()
+	cache.SetExpiration(time.Minute / 2)
 	ConnectDB("host=localhost user=postgres password=0000 dbname=WB_L0_orders port=5432 sslmode=disable")
+	cache.SyncWithDB()
+	app.Get("/orders", GetAllOrders)
+	app.Post("/addorder", CreateOrder)
 
-	route.Run()
+	app.Listen(":3000")
 }
 
-func GetAllOrders(context *gin.Context) {
-	var orders []JsonOrder
-	DB.Find(&orders)
+/* 	route := gin.Default()
 
-	context.JSON(http.StatusOK, gin.H{"orders": orders})
-}
+route.GET("/", func(context *gin.Context) {
+	getTestJson(context)
+})
+route.GET("/orders", GetAllOrders)
+route.POST("/addorder", CreateOrder)
+
+ConnectDB("host=localhost user=postgres password=0000 dbname=WB_L0_orders port=5432 sslmode=disable")
+
+route.Run() */

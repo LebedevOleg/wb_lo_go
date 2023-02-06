@@ -15,7 +15,7 @@ type Payment struct {
 
 type Item struct {
 	Chrt_id      int    `json:"chrt_id" gorm:"primary_Key"`
-	Track_number string `json:"track_number"`
+	Track_number string `json:"track_number" gorm:"primary_Key"`
 	Price        int    `json:"price"`
 	Rid          string `json:"rid"`
 	Name         string `json:"name"`
@@ -70,6 +70,24 @@ type Order struct {
 }
 
 type Items_to_orders struct {
-	Order_id string `json:"order_uid"`
-	Item_id  int    `json:"chrt_id"`
+	Order_id          string `json:"order_uid"`
+	Item_id           int    `json:"chrt_id"`
+	Item_track_number string `json:"track_number"`
+}
+
+func (jo *JsonOrder) ConvertToJsonOrder(o Order, d Delivery, p Payment, i []Item) {
+	jo.Customer_id = o.Customer_id
+	jo.Date_created = o.Date_created
+	jo.Delivery = d
+	jo.Delivery_service = o.Delivery_service
+	jo.Track_number = o.Track_number
+	jo.Entry = o.Entry
+	jo.Payment = p
+	jo.Internal_signature = o.Internal_signature
+	jo.Item = i
+	jo.Locale = o.Locale
+	jo.Shardkey = o.Shardkey
+	jo.Sm_id = o.Sm_id
+	jo.Oof_shard = o.Oof_shard
+	jo.Order_uid = o.Order_uid
 }
