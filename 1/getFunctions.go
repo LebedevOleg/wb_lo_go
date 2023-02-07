@@ -1,74 +1,10 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gofiber/fiber/v2"
 )
-
-const testPay = `{
-  "order_uid": "b563feb7b2b84b6test",
-  "track_number": "WBILMTESTTRACK",
-  "entry": "WBIL",
-  "delivery": {
-    "name": "Test Testov",
-    "phone": "+9720000000",
-    "zip": "2639809",
-    "city": "Kiryat Mozkin",
-    "address": "Ploshad Mira 15",
-    "region": "Kraiot",
-    "email": "test@gmail.com"
-  },
-  "payment": {
-    "transaction": "b563feb7b2b84b6test",
-    "request_id": "",
-    "currency": "USD",
-    "provider": "wbpay",
-    "amount": 1817,
-    "payment_dt": 1637907727,
-    "bank": "alpha",
-    "delivery_cost": 1500,
-    "goods_total": 317,
-    "custom_fee": 0
-  },
-  "items": [
-    {
-      "chrt_id": 9934930,
-      "track_number": "WBILMTESTTRACK",
-      "price": 453,
-      "rid": "ab4219087a764ae0btest",
-      "name": "Mascaras",
-      "sale": 30,
-      "size": "0",
-      "total_price": 317,
-      "nm_id": 2389212,
-      "brand": "Vivienne Sabo",
-      "status": 202
-    }
-  ],
-  "locale": "en",
-  "internal_signature": "",
-  "customer_id": "test",
-  "delivery_service": "meest",
-  "shardkey": "9",
-  "sm_id": 99,
-  "date_created": "2021-11-26T06:22:19Z",
-  "oof_shard": "1"
-}`
-
-func getTestJson(context *gin.Context) {
-	order := JsonOrder{}
-	if err := json.Unmarshal([]byte(testPay), &order); err != nil {
-		fmt.Println(err)
-		context.JSON(http.StatusBadRequest, err.Error())
-		return
-	}
-	context.JSON(http.StatusOK, gin.H{"order": order})
-
-}
 
 func GetAllOrders(context *fiber.Ctx) error {
 	if !cache.CheckUpdate() {
@@ -103,4 +39,46 @@ func GetAllOrders(context *fiber.Ctx) error {
 	context.Status(http.StatusOK).JSON(jsonOrders)
 	return nil
 	//	context.JSON(http.StatusOK, gin.H{"orders": jsonOrders})
+}
+
+func getOrder(context *fiber.Ctx) error {
+	orderID := context.Params("id")
+	if !cache.CheckUpdate() {
+		for _, v := range cache.Orders {
+			if v.Order_uid == orderID {
+				context.Status(http.StatusOK)
+				context.JSON(v)
+				return nil
+			}
+		}
+	}
+	defer cache.SyncWithDB()
+	var order Order
+	var payment Payment
+	var delivery Delivery
+	var itemsOrders []Items_to_orders
+	res := DB.Find(&order, "order_uid = ?", orderID)
+	if res.Error != nil {
+		context.Status(http.StatusBadRequest)
+		context.JSON(res.Error.Error())
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		context.Status(http.StatusBadRequest)
+		context.JSON(`{"message": "order не найден"}`)
+		return res.Error
+	}
+	var jsonOrder JsonOrder
+
+	DB.Find(&payment, "transaction = ?", order.Payment_transctions)
+	DB.Find(&delivery, "phone = ?", order.Delivery_phone)
+	itemCount := DB.Find(&itemsOrders, "order_id = ?", order.Order_uid)
+	items := make([]Item, itemCount.RowsAffected)
+	for j, item := range itemsOrders {
+		DB.Find(&items[j], "chrt_id = ? AND track_number = ?", item.Item_id, order.Track_number)
+	}
+	jsonOrder.ConvertToJsonOrder(order, delivery, payment, items)
+	context.Status(http.StatusOK)
+	context.JSON(jsonOrder)
+	return nil
 }
