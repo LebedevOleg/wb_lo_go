@@ -1,4 +1,4 @@
-package main
+package models
 
 type Payment struct {
 	Transaction   string `json:"transaction" gorm:"primary_Key"`
@@ -50,7 +50,7 @@ type JsonOrder struct {
 	Delivery_service   string   `json:"delivery_service"`
 	Shardkey           string   `json:"shardkey"`
 	Sm_id              int      `json:"sm_id"`
-	Date_created       string   `json:"date_created" type:"timestamp"`
+	Date_created       string   `json:"date_created" type:"timestamp" fake:"{year}-{month}-{day} {hour}:{minute}:{second}"`
 	Oof_shard          string   `json:"oof_shard"`
 }
 type Order struct {

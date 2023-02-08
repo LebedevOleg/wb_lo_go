@@ -1,0 +1,27 @@
+version: "2.2.1"
+services:
+  database:
+    container_name: postgres
+    image: postgres:latest
+    restart: always
+    hostname: ${POSTGRES_HOST}
+    ports:
+      - 5432
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  nats-streaming:
+    command:
+      - "--cluster_id"
+      - ${CLUSTER_ID}
+    image: nats-streaming:latest
+    restart: always
+    container_name: nats-streaming
+    ports:
+      - 4222:${NATS_PORT1}
+      - 8222:${NATS_PORT2}

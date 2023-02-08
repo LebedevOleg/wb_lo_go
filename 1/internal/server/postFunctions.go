@@ -1,5 +1,6 @@
-package main
+package server
 
+/*
 import (
 	"errors"
 	"net/http"
@@ -19,8 +20,8 @@ func CreateOrder(context *fiber.Ctx) error {
 		return err
 	}
 
-	/* delivery := input.Delivery
-	payment := input.Payment */
+	// delivery := input.Delivery
+	//payment := input.Payment
 
 	var delivery Delivery
 	var payment Payment
@@ -33,8 +34,8 @@ func CreateOrder(context *fiber.Ctx) error {
 		DB.Create(&payment)
 	}
 
-	/* var order Order
-	order.ConvertToOrder(input) */
+	// var order Order
+	//order.ConvertToOrder(input)
 	var order Order
 	if res := DB.Find(&order, "order_uid = ?", input.Order_uid); res.RowsAffected != 0 {
 		context.Status(http.StatusBadRequest).JSON("Попытка добавить уже существующий заказ")
@@ -60,3 +61,4 @@ func CreateOrder(context *fiber.Ctx) error {
 	return nil
 	//context.JSON(http.StatusOK, gin.H{"order": input})
 }
+*/
