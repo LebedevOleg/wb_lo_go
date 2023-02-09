@@ -38,12 +38,7 @@ func AddNewOrder(jo models.JsonOrder) error {
 		DB.Create(&payment)
 	}
 
-	/* var order Order
-	order.ConvertToOrder(jo) */
-
 	if res := DB.Find(&order, "order_uid = ?", jo.Order_uid); res.RowsAffected != 0 {
-		//context.Status(http.StatusBadRequest).JSON("Попытка добавить уже существующий заказ")
-		//context.JSON(http.StatusBadRequest, gin.H{"message": "Попытка добавить уже существующий заказ"})
 		err := errors.New("попытка добавить уже существующий заказ")
 		return err
 	}

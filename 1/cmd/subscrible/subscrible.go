@@ -16,7 +16,6 @@ import (
 )
 
 func main() {
-	//sc, err := stan.Connect("test-cluster", "subscribe", stan.NatsURL("nats://nats-streaming:5000"))
 	sc, err := stan.Connect("test-cluster", "subscribe", stan.NatsURL("nats://localhost:4222"))
 	cache.ConfigCache(time.Minute)
 	if err != nil {
@@ -24,7 +23,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	database.ConnectDB("host=localhost user=postgres password=0000 dbname=WB_L0_orders port=5432 sslmode=disable")
+	database.ConnectDB("host=localhost user=postgres password=0000 dbname=WB_L0_orders port=5555 sslmode=disable")
 
 	sub, _ := sc.Subscribe("publisher", nats.GetMessage, stan.StartWithLastReceived(), stan.SetManualAckMode())
 

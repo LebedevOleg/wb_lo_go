@@ -12,8 +12,7 @@ import (
 )
 
 func main() {
-	//sc, err := stan.Connect("test-cluster", "publisher", stan.NatsURL("nats://nats-streaming:4222"))
-	sc, err := stan.Connect("test-cluster", "publisher", stan.NatsURL("nats://localhost:5000"))
+	sc, err := stan.Connect("test-cluster", "publisher", stan.NatsURL("nats://localhost:4222"))
 	if err != nil {
 		fmt.Println("ПОДКЛЮЧЕНИЕ НЕ УДАЛОСЬ")
 		fmt.Println(err.Error())

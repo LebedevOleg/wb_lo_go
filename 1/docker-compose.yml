@@ -6,7 +6,7 @@ services:
     restart: always
     hostname: ${POSTGRES_HOST}
     ports:
-      - 5432
+      - "5555:5432"
     env_file:
       - .env
     healthcheck:

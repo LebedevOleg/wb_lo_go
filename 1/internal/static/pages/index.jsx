@@ -1,12 +1,19 @@
 function GetOrderForm() {
 	const [orderId, setOrderId] = React.useState("");
-	const [triger, setTriger] = React.useState(false);
 	const [orderData, setOrderData] = React.useState([]);
 	const press = async () => {
 		setOrderData([]);
 		await fetch(`http://localhost:3000/orders/${orderId}`)
 			.then((res) => res.json())
 			.then((result) => {
+				if (result === "order не найден") {
+					setOrderData([]);
+					return;
+				}
+				if (Array.isArray(result)) {
+					setOrderData(result);
+					return;
+				}
 				setOrderData(Array(result));
 				setTriger(true);
 			}, []);
@@ -23,24 +30,25 @@ function GetOrderForm() {
 
 			<div>
 				Counter: {orderId}
-				<br /> Order:{orderData.length} {"  "}
-				{(!!orderData.length !== 0 &&
-					orderData.map((o) => <OrderItem value={o}></OrderItem>)) ||
-					"Данных нет"}
+				<br /> Order:{orderData.length} <br />
+				{orderData.length !== 0
+					? orderData.map((o) => <OrderItem value={o}></OrderItem>)
+					: "Данных нет"}
 			</div>
 		</div>
 	);
 }
 
 const OrderItem = (props) => {
+	console.log(props.value);
 	return (
 		<>
 			<table>
 				<tr>
-					<td>Название поля</td>
-					<td>Значение</td>
-					<td>Название поля</td>
-					<td>Значение</td>
+					<th>Название поля</th>
+					<th>Значение</th>
+					<th>Название поля</th>
+					<th>Значение</th>
 				</tr>
 				<tr>
 					<td>order_uid</td>
@@ -74,6 +82,7 @@ const OrderItem = (props) => {
 				</tr>
 				<tr>
 					<td>sm_id</td>
+					<td>{props.value.sm_id}</td>
 				</tr>
 			</table>
 		</>

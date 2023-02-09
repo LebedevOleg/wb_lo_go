@@ -23,7 +23,6 @@ func GetAllOrders(context *fiber.Ctx) error {
 
 	if res.Error != nil {
 		context.Status(http.StatusBadRequest).JSON(res.Error.Error())
-		//context.JSON(http.StatusBadRequest)
 		return res.Error
 	}
 
@@ -41,7 +40,6 @@ func GetAllOrders(context *fiber.Ctx) error {
 	cache.UpdateCache(jsonOrders)
 	context.Status(http.StatusOK).JSON(jsonOrders)
 	return nil
-	//	context.JSON(http.StatusOK, gin.H{"orders": jsonOrders})
 }
 
 func GetOrder(context *fiber.Ctx) error {
@@ -53,7 +51,7 @@ func GetOrder(context *fiber.Ctx) error {
 			return nil
 		}
 	}
-	defer database.SyncCache()
+
 	var order models.Order
 	var payment models.Payment
 	var delivery models.Delivery
@@ -66,9 +64,10 @@ func GetOrder(context *fiber.Ctx) error {
 	}
 	if res.RowsAffected == 0 {
 		context.Status(http.StatusBadRequest)
-		context.JSON(`{"message": "order не найден"}`)
+		context.JSON(`order не найден`)
 		return res.Error
 	}
+	defer database.SyncCache()
 	var jsonOrder models.JsonOrder
 
 	database.DB.Find(&payment, "transaction = ?", order.Payment_transctions)
