@@ -18,10 +18,12 @@ func sqrtSum() func(int, *sync.WaitGroup) int {
 func main() {
 	arr := []int{2, 4, 6, 8, 10}
 	var wg sync.WaitGroup
-	result := sqrtSum()
+	//* используем замыкание для того чтобы расчитать сумму
+	res := sqrtSum()
 	for _, v := range arr {
-		result(v, &wg)
+		res(v, &wg)
 	}
+	//* альтернативный способ подсчета, по такому же принципу
 	/* res := 0
 	for _, v := range arr {
 		wg.Add(1)
@@ -31,5 +33,6 @@ func main() {
 		}(v)
 	} */
 	wg.Wait()
-	fmt.Println(result(0, &wg))
+	fmt.Println(res(0, &wg))
+	//fmt.Println(res)
 }
